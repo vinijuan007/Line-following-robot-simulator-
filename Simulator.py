@@ -2,8 +2,8 @@
 import pygame
 from Sensor import Player
 
-WIDTH = 360
-HEIGHT = 480
+WIDTH = 1000
+HEIGHT = 500
 FPS = 30
 
 #define colors 
