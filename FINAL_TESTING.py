@@ -2,6 +2,9 @@
 import pygame
 import math
 
+font = pygame.font.Font('freesansbold.ttf', 32)
+
+
 
 WIDTH = 1400
 HEIGHT = 700
@@ -21,7 +24,7 @@ BLUE =(0, 0, 255)
 
 
 class Sensor():
-    def __init__(self, horizontal, vertical):
+    def __init__(self, horizontal, vertical, value_of_sensor):
         self.xo = 300
         self.yo = 100
         self.x1 = 500
@@ -32,16 +35,24 @@ class Sensor():
         self.horizontal = horizontal
         self.vertical = vertical
         self.radius = RADIUS_SENSOR
-        self.state = 0
+        self.status = 0
+        #to rememeber value of sensor swhile not true
+        self.value_of_sensor1 = value_of_sensor
+        self.value_of_sensor = 0
+        self.turning_status = 0
+        self.forward_status = 0
         self.display()
         
         
     def repaint(self, color):
         self.color = color 
         if self.color == RED:
-            self.state = 1
+            self.status = 1
+            self.value_of_sensor = self.value_of_sensor1
         else:
-            self.state = 0
+            self.status = 0
+            self.value_of_sensor = 0
+        
         
         
     def display(self):
@@ -54,19 +65,31 @@ class Sensor():
         self.speedrot = 0
         
         keystate = pygame.key.get_pressed()
-        #Rotation w
-        if keystate[pygame.K_a]:
+        #Rotation 
+        #if keystate[pygame.K_a] or self.turning_status == 1:
+        if keystate[pygame.K_a] :
             self.speedrot = -0.1
-        if keystate[pygame.K_d]:
+
+        #elif keystate[pygame.K_d] or self.turning_status == 2:
+        elif keystate[pygame.K_d]:
             self.speedrot =  0.1
+        else:
+            self.speedrot = 0
             
         self.rot = (self.rot + self.speedrot)
 
-        
-        if keystate[pygame.K_w]:
+        #Forward
+        if keystate[pygame.K_SPACE]:
+            self.speedy =   0
+            self.speedx =   0
+        #elif keystate[pygame.K_w] or self.forward_status == 1:
+        elif keystate[pygame.K_w] :
             self.speedy =  -10*math.cos(self.rot)
             self.speedx =   10*math.sin(self.rot)
-
+        else:
+            self.speedy = 0
+            self.speedx = 0
+            
         self.xo += int(self.speedx)
         self.yo += int(self.speedy)
         
@@ -101,8 +124,48 @@ def check_distance(xl, yl, xs, ys, rl, rs):
     else :
         return False 
 
-# def Control():
+def Control(s1s, s2s, s3s, s4s, s5s, s6s):
+    error = 0
+    sensors = list()
+    sensors.append(s1s)
+    sensors.append(s2s)
+    sensors.append(s3s)
+    sensors.append(s4s)
+    sensors.append(s5s)
+    sensors.append(s6s)
+    for i in range(0, len(sensors)):
+        error += sensors[i].value_of_sensor
+        a = "Error = " + str(error)
     
+    text = font.render( a, True, BLACK, WHITE )
+    textRect = text.get_rect()
+    textRect.center = (1200, 50)
+    screen.blit(text, textRect)
+
+        # sensors[i].turning_status = 0
+    
+    # if error == 0:
+    #     for i in range(0, len(sensors)):
+    #         sensors[i].forward_status = 1
+    #         sensors[i].turning_status = 0
+    # elif error == 1:
+    #     for i in range(0, len(sensors)):
+    #         sensors[i].turning_status = 2
+    # elif error == -1:
+    #     for i in range(0, len(sensors)):
+    #         sensors[i].turning_status = 1
+    # elif error == 2:
+    #     for i in range(0, len(sensors)):
+    #         sensors[i].turning_status = 2
+    # elif error == -2:
+    #     for i in range(0, len(sensors)):
+    #         sensors[i].turning_status = 1
+    # elif error == 3:
+    #     for i in range(0, len(sensors)):
+    #         sensors[i].turning_status = 2
+    # elif error == -3:
+    #     for i in range(0, len(sensors)):
+    #         sensors[i].turning_status = 1
     
        
 #initialize pygame and create window 
@@ -113,12 +176,12 @@ clock = pygame.time.Clock()
 
 
 ##SENSORS##
-s1 = Sensor(0, 0)
-s2 = Sensor(HORIZONTAL_DISTANCE, VERTICAL_DISTANCE)
-s3 = Sensor(-HORIZONTAL_DISTANCE, VERTICAL_DISTANCE)
-s4 = Sensor(2*HORIZONTAL_DISTANCE-25, 0)
-s5 = Sensor(-2*HORIZONTAL_DISTANCE+25, 0)
-s6 = Sensor(0, 2*VERTICAL_DISTANCE)
+s1 = Sensor(0, 0, 2)
+s2 = Sensor(HORIZONTAL_DISTANCE, VERTICAL_DISTANCE ,4)
+s3 = Sensor(-HORIZONTAL_DISTANCE, VERTICAL_DISTANCE, 16)
+s4 = Sensor(2*HORIZONTAL_DISTANCE-25, 0, 8)
+s5 = Sensor(-2*HORIZONTAL_DISTANCE+25, 0, 32)
+s6 = Sensor(0, 2*VERTICAL_DISTANCE, 1)
 
 sensors = list()
 sensors.append(s1)
@@ -173,8 +236,12 @@ while running:
             else:
                 sensors[i].repaint(BLUE)  
             
-    #Draw / render 
     screen.fill(BLACK)
+    
+    Control(s1, s2, s3, s4, s5, s6)
+   
+    #Draw / render 
+    
     
     for j in range(0, len(lines)):
         lines[j].display()
