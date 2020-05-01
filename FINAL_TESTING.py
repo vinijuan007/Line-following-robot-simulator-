@@ -2,7 +2,7 @@
 import pygame
 import math
 
-font = pygame.font.Font('freesansbold.ttf', 32)
+
 
 
 
@@ -66,12 +66,10 @@ class Sensor():
         
         keystate = pygame.key.get_pressed()
         #Rotation 
-        #if keystate[pygame.K_a] or self.turning_status == 1:
-        if keystate[pygame.K_a] :
+        if keystate[pygame.K_a] or self.turning_status == 1:
             self.speedrot = -0.1
 
-        #elif keystate[pygame.K_d] or self.turning_status == 2:
-        elif keystate[pygame.K_d]:
+        elif keystate[pygame.K_d] or self.turning_status == 2:
             self.speedrot =  0.1
         else:
             self.speedrot = 0
@@ -82,8 +80,7 @@ class Sensor():
         if keystate[pygame.K_SPACE]:
             self.speedy =   0
             self.speedx =   0
-        #elif keystate[pygame.K_w] or self.forward_status == 1:
-        elif keystate[pygame.K_w] :
+        elif keystate[pygame.K_w] or self.forward_status == 1:
             self.speedy =  -10*math.cos(self.rot)
             self.speedx =   10*math.sin(self.rot)
         else:
@@ -118,11 +115,56 @@ class Line():
     
 
 def check_distance(xl, yl, xs, ys, rl, rs):
+    
     distance = math.hypot(xl-xs, yl-ys)
     if distance <= (rs+rl) :
         return True
     else :
         return False 
+
+
+move_foward = list()
+move_foward.append(1)
+move_foward.append(32)
+move_foward.append(33)
+
+move_rigth = list()
+move_rigth.append(2)
+move_rigth.append(3)
+move_rigth.append(34)
+move_rigth.append(35)
+###
+move_rigth.append(8)
+move_rigth.append(9)
+move_rigth.append(10)
+move_rigth.append(11)
+move_rigth.append(40)
+move_rigth.append(41)
+move_rigth.append(42)
+move_rigth.append(43)
+
+move_left = list()
+move_left.append(4)
+move_left.append(5)
+move_left.append(16)
+move_left.append(17)
+move_left.append(20)
+move_left.append(21)
+move_left.append(36)
+move_left.append(37)
+move_left.append(48)
+move_left.append(49)
+move_left.append(52)
+move_left.append(52)
+
+
+def compare_list(a, errorx):
+    new_list = []
+    for i in range(0, len(a)):
+        new_list.append(errorx == a[i])
+    return new_list
+        
+
 
 def Control(s1s, s2s, s3s, s4s, s5s, s6s):
     error = 0
@@ -136,36 +178,28 @@ def Control(s1s, s2s, s3s, s4s, s5s, s6s):
     for i in range(0, len(sensors)):
         error += sensors[i].value_of_sensor
         a = "Error = " + str(error)
-    
+        sensors[i].turning_status = 0
+    font = pygame.font.Font('freesansbold.ttf', 32)
     text = font.render( a, True, BLACK, WHITE )
     textRect = text.get_rect()
     textRect.center = (1200, 50)
     screen.blit(text, textRect)
 
-        # sensors[i].turning_status = 0
+        
     
-    # if error == 0:
-    #     for i in range(0, len(sensors)):
-    #         sensors[i].forward_status = 1
-    #         sensors[i].turning_status = 0
-    # elif error == 1:
-    #     for i in range(0, len(sensors)):
-    #         sensors[i].turning_status = 2
-    # elif error == -1:
-    #     for i in range(0, len(sensors)):
-    #         sensors[i].turning_status = 1
-    # elif error == 2:
-    #     for i in range(0, len(sensors)):
-    #         sensors[i].turning_status = 2
-    # elif error == -2:
-    #     for i in range(0, len(sensors)):
-    #         sensors[i].turning_status = 1
-    # elif error == 3:
-    #     for i in range(0, len(sensors)):
-    #         sensors[i].turning_status = 2
-    # elif error == -3:
-    #     for i in range(0, len(sensors)):
-    #         sensors[i].turning_status = 1
+    if any(compare_list(move_foward, error)):
+        for i in range(0, len(sensors)):
+            sensors[i].forward_status = 1
+            sensors[i].turning_status = 0
+    elif any(compare_list(move_rigth, error)):
+        for i in range(0, len(sensors)):
+            sensors[i].forward_status = 1
+            sensors[i].turning_status = 2
+    elif any(compare_list(move_left, error)):
+        for i in range(0, len(sensors)):
+            sensors[i].forward_status = 1
+            sensors[i].turning_status = 1
+        
     
        
 #initialize pygame and create window 
@@ -176,12 +210,12 @@ clock = pygame.time.Clock()
 
 
 ##SENSORS##
-s1 = Sensor(0, 0, 2)
-s2 = Sensor(HORIZONTAL_DISTANCE, VERTICAL_DISTANCE ,4)
-s3 = Sensor(-HORIZONTAL_DISTANCE, VERTICAL_DISTANCE, 16)
+s1 = Sensor(0, 0, 1)
+s2 = Sensor(HORIZONTAL_DISTANCE, VERTICAL_DISTANCE ,2)
+s3 = Sensor(-HORIZONTAL_DISTANCE, VERTICAL_DISTANCE, 4)
 s4 = Sensor(2*HORIZONTAL_DISTANCE-25, 0, 8)
-s5 = Sensor(-2*HORIZONTAL_DISTANCE+25, 0, 32)
-s6 = Sensor(0, 2*VERTICAL_DISTANCE, 1)
+s5 = Sensor(-2*HORIZONTAL_DISTANCE+25, 0, 16)
+s6 = Sensor(0, 2*VERTICAL_DISTANCE, 32)
 
 sensors = list()
 sensors.append(s1)
